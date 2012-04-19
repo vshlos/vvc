@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<!DOCTYPE project>
+<project name="VVC Build" default="build" basedir="../">
+	<!-- Load in Ant-Contrib to give us access to some very useful tasks! -->
+	<!-- the .jar file is located in the tools directory -->
+	<taskdef resource="net/sf/antcontrib/antlib.xml">
+		<classpath>
+			<pathelement location="${basedir}/build/tools/ant-contrib-1.0b3.jar"/>
+		</classpath>
+	</taskdef>
+
+
+	<!-- load shell environment -->
+	<property environment="ENV" />
+
+	<!-- load property files -->
+	<property file="${basedir}/build/config/project.properties"/>
+
+	
+
+	<target name="clean">
+		<delete dir="${basedir}/${dir.output}"/>
+	</target>
+
+
+
+	<target name="-concat" description="Concatenates and Minifies any javascript listed in the file.buildorder property" depends="clean">
+		<echo message="Concatenating js..."/>
+
+		
+
+		<mkdir dir="${dir.output}"/>
+
+		<touch file="${dir.output}/${file.output}" />
+
+		<for list="${file.buildOrder}" param="currFile">
+		 	<sequential>
+				<concat destfile="${dir.output}/${file.output}" eol="crlf" append="yes">
+				  <fileset dir="${basedir}" includes="@{currFile}"/>
+				</concat>
+
+			</sequential>
+		</for>
+		
+
+	</target>
+
+	<target name="-minify" depends="-concat">
+		<echo message="Minifying js..."/>
+
+
+		<apply executable="java" parallel="false" failonerror="true">
+		  <fileset dir="${dir.output}" includes="${file.output}"/>
+		  <arg line="-jar"/>
+		  <arg path="${dir.build.tools}/${tool.yuicompressor}"/>
+		  <srcfile/>
+		  <arg line="-o"/>
+		  <mapper type="merge" to="${basedir}/${dir.output}/${file.output.min}"/>
+		  <targetfile/>
+		</apply>
+				
+
+	</target>
+
+	<target name="-zip" depends="-minify">
+
+		<exec executable="${basedir}/${dir.build.tools}/${tool.7zip}">
+		  <arg value="a" />
+		  <arg value="${basedir}/${dir.output}/${file.output.comp}" />
+		  <arg value="${basedir}/${dir.output}/${file.output.min}" />
+		</exec>
+
+	</target>
+
+	<target name="build" depends="-zip">
+		
+	</target>
+
+</project>

@@ -38,10 +38,19 @@
 				<concat destfile="${dir.output}/${file.output}" eol="crlf" append="yes">
 				  <fileset dir="${basedir}" includes="@{currFile}"/>
 				</concat>
-
 			</sequential>
 		</for>
 		
+
+		<if>
+			<isset property="opts.removeStrict" />
+			<then>
+				<echo message="remove strict" />
+				<replaceregexp match="^&quot;use strict&quot;;\r?\n" replace="" flags="mg">
+					  <fileset dir="${basedir}/${dir.output}" includes="${file.output}"/>
+				</replaceregexp>
+			</then>
+		</if>
 
 	</target>
 
@@ -72,7 +81,54 @@
 
 	</target>
 
-	<target name="build" depends="-zip">
+	<target name="build" >
+		<antcall target="-zip" />
+		<echo message="Output created to ${basedir}\${dir.output}" />
+	</target>
+
+
+
+
+
+	<!--Other build helpers-->
+
+	<!-- JSLint target, run separately -->
+	<target name="jslint">
+
+
+		<apply dir="${basedir}\${project.source}" executable="java" parallel="false" failonerror="true">
+		  <fileset dir="">
+			<include name="*.js"/>
+			<exclude name="**/*.min.js"/>
+			<exclude name="**/libs/"/>
+		  </fileset>
+		  <arg value="-jar" />
+		  <arg path="${basedir}/${dir.build.tools}/${tool.rhino}" />
+		  <arg path="${basedir}/${dir.build.tools}/${tool.jslint}" />
+		  <srcfile/>
+		  <arg value="${tool.jslint.opts}" />
+		</apply>
+
+	
+	</target>
+
+
+	<!-- JSHint target, run separately -->
+	<target name="jshint">
+
+		
+		<apply dir="${basedir}\${project.source}" executable="java" parallel="false" failonerror="true">
+		  <fileset dir="">
+			<include name="*.js"/>
+			<exclude name="**/*.min.js"/>
+			<exclude name="**/libs/"/>
+		  </fileset>
+		  <arg value="-jar" />
+		  <arg path="${basedir}/${dir.build.tools}/${tool.rhino}" />
+		  <arg path="${basedir}/${dir.build.tools}/${tool.jshint}" />
+		  <srcfile/>
+		  <arg value="${tool.jshint.opts}" />
+		</apply>
 		
 	</target>
 

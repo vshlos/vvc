@@ -20,7 +20,7 @@ vvc.createClass("vvc", "defaultNavigationManager", null, {
         /// Registers a collection of routes
         /// <summary>
         /// <param name="paths" type="Object">The object which maps String path names to handler functions.<param>
-        /// <returns></returns>
+
 
 
         var handler;

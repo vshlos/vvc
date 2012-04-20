@@ -7,10 +7,23 @@
 /*global jQuery, $, document, console, vvc */
 "use strict";
 window.vvc = {
+    /// <summary>
+    /// 
+    /// <summary>
+    
 
 
-    // makeClass - By John Resig (MIT Licensed)
+
+    // makeClass - 
     makeClass: function () {
+        /// <summary>
+        /// Creates a class either by name or or by using the method as the constructor.
+        ///     based on makeClass By John Resig (MIT Licensed)
+        /// <summary>
+        /// <param name="arguments">Any arguments will be passed into an init method in the class prototype.<param>
+        /// <returns>A object creator function which will instantiate an object instance.</returns>
+
+
         return function Object() {
             if (this instanceof Object) {
                 if (typeof this.init == "function")
@@ -20,11 +33,16 @@ window.vvc = {
         };
     },
 
-    /*
-    Creates a namespace from the string provided with a "." separator or 
-    an array to the full path.
-    */
+    
     makeNamespace: function (path) {
+        /// <summary>
+        /// Creates a namespace from the string provided with a "." separator or an array to the full path.
+        /// <summary>
+        /// <param name="path" type="String"><param>
+        /// <returns></returns>
+
+
+
         var parts = path, root = window, part = null;
 
         if (typeof path === 'string') {

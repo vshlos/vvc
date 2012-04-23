@@ -11,28 +11,35 @@
     <script type="text/javascript" src="../vvc/vvc.navigationManager.js"></script>
 
 
-    <script type="text/javascript" src="app.js"></script>
+    
+    <!--Controllers-->
     <script type="text/javascript" src="controllers/default.js"></script>
+    <script type="text/javascript" src="controllers/search.js"></script>
+
+    <!--Views-->
     <script type="text/javascript" src="views/default/index.js"></script>
     <script type="text/javascript" src="views/search/index.js"></script>
     <script type="text/javascript" src="views/search/searchbar.js"></script>
-    <script type="text/javascript" src="controllers/alerts.js"></script>
-    <script type="text/javascript" src="views/alerts/index.js"></script>
+    
+    <!--Main page initializer-->
+    <script type="text/javascript" src="pages.js"></script>
+
 </head>
 <body>
-    <div id="search">
-        <div id="results">
-        </div>
-        <div id="alerts" style="display: none">
-            Alerts set!
-        </div>
+  
+    <div id="home" style="border: 1px solid black;">
+        No Javascript Enabled...
     </div>
-    <div id="home" style="display:none">
-        this is home
+    <div id="search" style="border: 1px solid black;">
+       This is the search box
     </div>
 
     <script type="text/javascript">
-        vvc.navManager.start();
+        var currentPage = new pages.Index();
+        $(function () {
+            currentPage.initialize();    
+        })
+        
     </script>
 </body>
 </html>

@@ -22,7 +22,6 @@ vvc.createClass("vvc", "defaultNavigationManager", null, {
         /// <param name="paths" type="Object">The object which maps String path names to handler functions.<param>
 
 
-
         var handler;
 
 
@@ -79,7 +78,7 @@ vvc.createClass("vvc", "defaultNavigationManager", null, {
 
         //the handler was found, call it.
         if (root){
-            root(path);
+            root(parts);
             return true;
         }
 
@@ -109,8 +108,8 @@ vvc.createClass("vvc", "defaultNavigationManager", null, {
         /// <returns>Returns true if the handler was found and called, otherwise false.</returns>
         
         
-        var pathStart = window.location.href.indexOf("#"),
-            path = pathStart > 0 ? window.location.href.substr(pathStart + 1) : "/"
+        var pathStart = window.location.href.indexOf("#/"),
+            path = pathStart > 0 ? window.location.href.substr(pathStart + 2) : "/"
 
         return this.showPage(path);
     },
@@ -125,7 +124,7 @@ vvc.createClass("vvc", "defaultNavigationManager", null, {
         var path = Array.prototype.slice.call(arguments).join("/"),
             currPathStart = window.location.href.indexOf("#"),
             base = currPathStart > 0 ? window.location.href.substr(0, currPathStart) : window.location.href;
-        window.location.href=base + "#" + path;
+        window.location.href=base + "#/" + path;
 
     }
 

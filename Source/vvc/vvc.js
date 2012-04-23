@@ -1,9 +1,11 @@
-﻿/*
-* Root namespace
+﻿/*!
+* VVC
 *
-*
-* JSLint Configuration:
+* Licence   MIT
+* Author    Vlad Shlosberg
 */
+
+
 /*global jQuery, $, document, console, vvc */
 "use strict";
 window.vvc = {

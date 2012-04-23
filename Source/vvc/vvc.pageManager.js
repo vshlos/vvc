@@ -72,7 +72,7 @@ vvc.createClass("vvc", "defaultPageManager", null, {
         var parts = path.split("/").reverse();
         var root = this.controllers;
 
-        while (typeof root !== 'function' && parts.length > 0) {
+        while (typeof root !== 'function' && root != null && parts.length > 0) {
             root = root[parts.pop()];
         }
 
@@ -81,7 +81,7 @@ vvc.createClass("vvc", "defaultPageManager", null, {
 
         //find the method based on the rest of the path
         root = controller;
-        while (typeof root !== 'function' && parts.length > 0) {
+        while (typeof root !== 'function' && root != null && parts.length > 0) {
             root = root[parts.pop()];
         }
 

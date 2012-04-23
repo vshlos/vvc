@@ -16,6 +16,7 @@ vvc.createClass("vvc", "targetHelper", "vvc", {
             this.currentView.hide();
 
         var vw = new view();
+        vw.target = this.target;
         vw.show(this.target, data);
 
 

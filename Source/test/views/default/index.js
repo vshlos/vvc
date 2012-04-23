@@ -1,13 +1,14 @@
 ﻿vvc.pageManager.view("default.index", {
     show: function (target, data) {
         target = $(target);
-        target.show();
 
-        target.find("#alertLink").vvc("createLink", "alerts/set")
+        target.html("");
 
-        var searchBar = this.base.partialView(vvc.views.search.searchbar, function (term) {
-            vvc.navManager.redirect("/search", term);
-        });
+        var searchBar = this.base.partialView(vvc.views.search.searchbar, {term : data, callback: function (term) {
+            vvc.navManager.redirect("search", term);
+        }});
+
+        target.append("Search:");
         return target.append(searchBar);
     },
     hide: function () {

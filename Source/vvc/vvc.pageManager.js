@@ -68,9 +68,10 @@ vvc.createClass("vvc", "defaultPageManager", null, {
 
     },
 
-    displayPage: function (target, path, args) {
-        var parts = path.split("/").reverse();
-        var root = this.controllers;
+    displayPage: function (target, path) {
+        var parts = path.split("/").reverse(),
+            root = this.controllers,
+            args = vvc.sliceArgs(arguments, 2);
 
         while (typeof root !== 'function' && root != null && parts.length > 0) {
             root = root[parts.pop()];
@@ -85,16 +86,21 @@ vvc.createClass("vvc", "defaultPageManager", null, {
             root = root[parts.pop()];
         }
 
+        //if not found, just return null.
+        if (!root)
+            return null;
+
         //if args exist attach to parts
         if (args)
             parts = parts.concat(args);
 
         //get the function and apply the rest.
         controller.target = target;
-        root.apply(controller, parts);
+        return root.apply(controller, parts);
+
 
     },
-    displayView: function (target, view, data) {
+    displayView: function (target, view) {
         if (!view || typeof view !== 'function')
             throw new Error("View is not defined as a view function class.");
 
@@ -102,7 +108,7 @@ vvc.createClass("vvc", "defaultPageManager", null, {
             throw new Error("Target is not defined");
 
 
-        target.vvc.showView(view, data);
+        return target.vvc.showView.apply(target.vvc, [view].concat(vvc.sliceArgs(arguments, 2)));
        
 
     },

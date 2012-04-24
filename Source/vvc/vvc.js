@@ -101,6 +101,9 @@ window.vvc = {
         if (jq)
             vvc.registerAllTools(jq);
     },
+    sliceArgs : function (args, removeNumber){
+        return Array.prototype.slice.call(args, removeNumber);
+    },
 
     /*
     Shared constructor type for all tools to keep them the same format mimicking jqueryUI.

@@ -84,6 +84,9 @@
 	<target name="build" >
 		<antcall target="-zip" />
 		<echo message="Output created to ${basedir}\${dir.output}" />
+
+		<!--Create a copy for docs-->
+		<copy file="${basedir}/${dir.output}/${file.output.min}" tofile="${basedir}/${project.copyTo}/${file.output.min}" />
 	</target>
 
 

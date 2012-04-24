@@ -70,15 +70,15 @@ vvc.createClass("vvc", "defaultNavigationManager", null, {
 
 
         var parts = path.split("/").reverse();
-        var root = this.routes;
+        var root = this.routes
 
-        while (typeof root !== 'function' && root && parts.length > 0) {
+        while (root && typeof root !== 'function' && parts.length > 0) {
             root = root[parts.pop()];
         }
 
         //the handler was found, call it.
         if (root){
-            root(parts);
+            root.apply(this.routes, parts);
             return true;
         }
 

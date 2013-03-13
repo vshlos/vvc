@@ -1,7 +1,6 @@
 ﻿/*!
 * VVC
 *
-* Licence   MIT
 * Author    Vlad Shlosberg
 */
 
@@ -25,9 +24,9 @@ window.vvc = {
         /// <param name="arguments">Any arguments will be passed into an init method in the class prototype.<param>
         /// <returns>A object creator function which will instantiate an object instance.</returns>
 
-
         return function Object() {
-            if (this instanceof Object) {
+            //if (this instanceof Object) {
+            if (typeof this === "object") {
                 if (typeof this.init == "function")
                     this.init.apply(this, arguments);
             } else
@@ -143,7 +142,7 @@ window.vvc = {
                     obj.setOptions(arg0);
             }
 
-            if (result && result != $(item))
+            if (result != null && result != $(item))
                 results.push(result);
 
         })
@@ -167,30 +166,98 @@ window.vvc = {
         return obj;
     },
 
+
     extendObject: function (from, to) {
         var obj = {};
         for (var prop in from)
             obj[prop] = from[prop];
-        for (var prop in to)
-            obj[prop] = to[prop];
+        if (to){
+            for (var prop in to)
+                obj[prop] = to[prop];
+        }
+        
 
         return obj;
     },
 
     extendClass: function (namespace, name, registertool, base, prototype) {
 
-        var obj = vvc.createClass(namespace, name, registertool, prototype);
+        var baseInstance,
+            baseObj,
 
-        if (typeof base === 'function')
-            base = base.prototype;
+            //create the object to be a new extended object
+            obj = vvc.makeNamespace(namespace)[name] = function ExtendedObject() {
+                if (typeof this === "object") {
 
-        obj.prototype = vvc.extendObject(base, obj.prototype);
+                    this.base = new baseInstance(this)
 
-        if (!obj.prototype.base)
-            obj.prototype.base = base;
+                    base.apply(this.base, arguments)
+                        
+                    if (typeof this.init === "function")
+                        this.init.apply(this, arguments);
+                } else
+                    return new ExtendedObject(arguments);
+            },
+
+
+
+
+            //Handles the base objects method calls. 
+            //"this" is set to the instance itself, while base is set to grandfather class
+            getInstanceHandler = function (val) {
+                return function () {
+                    var instance = this.__instance__,
+                        base = instance.base;
+                    try{
+                        
+                        instance.base = this.base;
+                        val.apply(instance, arguments);    
+                    }
+                    finally{
+                        instance.base = base;
+                    }
+                    
+                }
+            };
+
+
+        //create a class from the prototype that doesn't have a constructor
+        //this is used as the "new prototype" for the newly created object.
+        baseObj = function () {};
+        baseObj.prototype = base.prototype;
+
+        //the base object with a new constructor to just keep the instance
+        baseInstance = function (instance) {
+            this.__instance__ = instance
+        }
+
+        //set the base prototype of the object and the base to be the new non-constructor object.
+        baseInstance.prototype = vvc.extendObject(obj.prototype = new baseObj());
+
+
+        //go through each object in the prototype.
+        //if there is a new definition for it, then store the old one in the baseInstance prototype
+        //and overwrite the object with the new prototype
+        for (var prop in prototype) {
+            var val = obj.prototype[prop]
+            if (val) {
+                if (typeof val === "function") {
+                    baseInstance.prototype[prop] = getInstanceHandler(val);
+                } else {
+                    baseInstance.prototype[prop] = val;
+                }
+                
+            }
+            obj.prototype[prop] = prototype[prop];
+        }
+            
+
+        //finally if its a jquery tool, register it.
+        if (registertool)
+            vvc.registerTool(obj, registertool);
 
         return obj;
     }
+    
 
 };
-

@@ -5,7 +5,7 @@
 	<!-- the .jar file is located in the tools directory -->
 	<taskdef resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
-			<pathelement location="${basedir}/build/tools/ant-contrib-1.0b3.jar"/>
+			<pathelement location="${basedir}/Build/tools/ant-contrib-1.0b3.jar"/>
 		</classpath>
 	</taskdef>
 
@@ -14,7 +14,7 @@
 	<property environment="ENV" />
 
 	<!-- load property files -->
-	<property file="${basedir}/build/config/project.properties"/>
+	<property file="${basedir}/Build/config/project.properties"/>
 
 	
 
@@ -73,17 +73,17 @@
 
 	<target name="-zip" depends="-minify">
 
-		<exec executable="${basedir}/${dir.build.tools}/${tool.7zip}">
-		  <arg value="a" />
-		  <arg value="${basedir}/${dir.output}/${file.output.comp}" />
+		<exec executable="${tool.gzip}">
+		  <arg value="-c" />
 		  <arg value="${basedir}/${dir.output}/${file.output.min}" />
+		  <redirector output="${basedir}/${dir.output}/${file.output.comp}" alwayslog="false"/> 
 		</exec>
 
 	</target>
 
 	<target name="build" >
 		<antcall target="-zip" />
-		<echo message="Output created to ${basedir}\${dir.output}" />
+		<echo message="Output created to ${basedir}/${dir.output}" />
 
 		<!--Create a copy for docs-->
 		<copy file="${basedir}/${dir.output}/${file.output.min}" tofile="${basedir}/${project.copyTo}/${file.output.min}" />
@@ -99,7 +99,7 @@
 	<target name="jslint">
 
 
-		<apply dir="${basedir}\${project.source}" executable="java" parallel="false" failonerror="true">
+		<apply dir="${basedir}/${project.source}" executable="java" parallel="false" failonerror="true">
 		  <fileset dir="">
 			<include name="*.js"/>
 			<exclude name="**/*.min.js"/>
@@ -120,7 +120,7 @@
 	<target name="jshint">
 
 		
-		<apply dir="${basedir}\${project.source}" executable="java" parallel="false" failonerror="true">
+		<apply dir="${basedir}/${project.source}" executable="java" parallel="false" failonerror="true">
 		  <fileset dir="">
 			<include name="*.js"/>
 			<exclude name="**/*.min.js"/>

@@ -16,7 +16,7 @@ window.vvc = {
 
 
     // makeClass - 
-    makeClass: function () {
+    makeClass: function (namespace) {
         /// <summary>
         /// Creates a class either by name or or by using the method as the constructor.
         ///     based on makeClass By John Resig (MIT Licensed)
@@ -24,14 +24,25 @@ window.vvc = {
         /// <param name="arguments">Any arguments will be passed into an init method in the class prototype.<param>
         /// <returns>A object creator function which will instantiate an object instance.</returns>
 
-        return function Object() {
-            //if (this instanceof Object) {
-            if (typeof this === "object") {
-                if (typeof this.init == "function")
-                    this.init.apply(this, arguments);
-            } else
-                return new Object(arguments);
+
+
+        var obj = function Object() {
+            if (this instanceof obj) {
+                if (typeof this.init === "function" && obj.prototype.hasOwnProperty("init"))
+                    obj.prototype.init.apply(this, arguments);
+            } else {
+                
+                var args = arguments;
+                var Object = function () {
+                    obj.apply(this, args)
+                }
+                Object.prototype = obj.prototype;
+                return new Object();
+            }
+                
         };
+
+        return obj;
     },
 
     
@@ -128,8 +139,21 @@ window.vvc = {
                 result,
                 func;
 
-            if (!obj)
+            //if the destroy function is called, either 
+            //destroy or dont do anything if it doesn't already exist.
+            if (arg0 === "destroy") {
+                if (obj) {
+                    if (obj.destroy) {
+                        obj.destroy();
+                    }
+                    delete item[lowerName]
+                }
+               
+                return;
+            }
+            else if (!obj) {
                 obj = item[lowerName] = new className(item, !typeString ? arg0 : null);
+            }
 
 
             if (typeString) {
@@ -138,7 +162,7 @@ window.vvc = {
                     result = func.apply(obj, args);
             }
             else {
-                if (obj.setOptions)
+                if (obj.setOptions && arg0 != null)
                     obj.setOptions(arg0);
             }
 
@@ -153,18 +177,26 @@ window.vvc = {
             return targetResults;
     },
 
+    createStatic: function (namespace, name, value) {
+        var space = vvc.makeNamespace(namespace);
+        space[name] = value;
+    },
+
     createClass: function (namespace, name, registertool, prototype) {
 
-        var namespace = vvc.makeNamespace(namespace),
-            obj = namespace[name] = vvc.makeClass();
+        var space = vvc.makeNamespace(namespace);
+        var obj = space[name] = vvc.makeClass(space);
+        obj.name = name;
 
         obj.prototype = prototype;
+        obj.prototype.__CLASS__ = namespace + "." + name;
 
         if (registertool)
             vvc.registerTool(obj, registertool);
 
         return obj;
     },
+
 
 
     extendObject: function (from, to) {
@@ -182,43 +214,69 @@ window.vvc = {
 
     extendClass: function (namespace, name, registertool, base, prototype) {
 
-        var baseInstance,
-            baseObj,
+        var baseInstance;
+        var baseObj;
+        var space = vvc.makeNamespace(namespace)
 
-            //create the object to be a new extended object
-            obj = vvc.makeNamespace(namespace)[name] = function ExtendedObject() {
-                if (typeof this === "object") {
+        //create the object to be a new extended object
+            
+        var obj = space[name] = function ExtendedObject() {
+            //if (typeof this === "object" && space !== this) {
+            if (this instanceof obj) {
 
-                    this.base = new baseInstance(this)
+                //create the base object
+                var currBase = this.base = new baseInstance(this)
 
-                    base.apply(this.base, arguments)
-                        
-                    if (typeof this.init === "function")
-                        this.init.apply(this, arguments);
-                } else
-                    return new ExtendedObject(arguments);
-            },
+                //call the base constructor
+                base.apply(this, arguments)
+
+                //If the base constructor changes this objects base, then there is another level
+                //so we store it as the "base of the base" and set this objects base to what we 
+                //originally came up with
+                if (currBase != this.base) {
+                    currBase.base = this.base;
+                    this.base = currBase;    
+                }
+                
+                    
+                //Only call the init method if its in this classes prototype, otherwise it will be called
+                //by the downstream cosntructor call.
+                if (obj.prototype.hasOwnProperty("init") && typeof obj.prototype.init === "function")
+                    obj.prototype.init.apply(this, arguments);
+            } else {
+                var args = arguments;
+                var ExtendedObject = function () {
+                    obj.apply(this, args)
+                }
+                ExtendedObject.prototype = obj.prototype;
+                //return new MyObject(arguments);
+                return new ExtendedObject();
+            }
+                
+        }
+        obj.name = name;
 
 
 
 
             //Handles the base objects method calls. 
             //"this" is set to the instance itself, while base is set to grandfather class
-            getInstanceHandler = function (val) {
-                return function () {
-                    var instance = this.__instance__,
-                        base = instance.base;
-                    try{
-                        
-                        instance.base = this.base;
-                        val.apply(instance, arguments);    
-                    }
-                    finally{
-                        instance.base = base;
-                    }
+        var getInstanceHandler = function (val) {
+            return function () {
+                var instance = this.__instance__,
+                    base = instance.base;
+                try{
                     
+                    instance.base = this.base;
+                    
+                    val.apply(instance, arguments);    
                 }
-            };
+                finally{
+                    instance.base = base;
+                }
+                
+            }
+        };
 
 
         //create a class from the prototype that doesn't have a constructor
@@ -228,7 +286,7 @@ window.vvc = {
 
         //the base object with a new constructor to just keep the instance
         baseInstance = function (instance) {
-            this.__instance__ = instance
+            this.__instance__ = instance;
         }
 
         //set the base prototype of the object and the base to be the new non-constructor object.
@@ -251,6 +309,7 @@ window.vvc = {
             obj.prototype[prop] = prototype[prop];
         }
             
+        obj.prototype.__CLASS__ = namespace + "." + name;
 
         //finally if its a jquery tool, register it.
         if (registertool)
